@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Shopper</title>
+	   <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+   <style>
+body {
+  background: url(bc.jpg);
+    background-size: 1440px 740px;
+    background-repeat: no-repeat;
+    
+}  
+
+table{
+color:#FFA500;
+	border: 1px solid black;
+	width:40%;
+}
+td{border: 1px solid black;}
+tr{border: 1px solid black;}
+
+p1{
+color: #00ff00;
+}
+
+p{
+color: #ffffff;
+}
+
+</style>
+ </head>
+ <body onload="Api_call()">
+
+<p1>Best buy price </p> 
+<p id="buy"></p>
+<p1> Best Sell price </p> 
+<p id="sell"></p>
+
+ <input type="text" id="buy_quantity" placeholder="0.00 B" >
+<button type="button" id="buy_button" name="buy">Buy</button> <br>
+ <input type="text" id="sell_quantity" placeholder="0.00 B" >
+<button type="button" id ="sell_button" name="sell">Sell</button>
+
+ <table >
+ <tr><td>Exchange Name</td><td>Buy Price</td><td>Sell price</td></tr>
+  <tr name='CoinBase'>
+    <td>CoinBase</td>
+    <td id='cb_b'></td>
+    <td id='cb_s'></td>
+  </tr>
+  <tr name= 'BitStamp'>
+    <td>BitStamp</td>
+    <td id='bs_b'></td>
+    <td id='bs_s'></td>
+  </tr>
+  <tr name='Kraken'>
+    <td>Kraken</td>
+    <td id='kr_b'></td>
+    <td id='kr_s'></td>
+  </tr>
+  <tr name='itBit'>
+    <td>itBit</td>
+    <td id='ib_b'></td>
+    <td id='ib_s'></td>
+  </tr>
+</table>
+
+
+<script >
+
+    
+
+//alert("in script");
+var json ;
+
+function Api_call()
+{
+//  alert("in Api_call");
+	  var path = "getPrice.py";
+             $.getJSON(path, {})
+                .done(function (data) {
+                    min_buy(data); 
+                    setInterval(function(){Api_call()}, 50000);
+						
+                    })
+                 .fail(function(){
+                 //   alert("API call failed");				 
+                    setInterval(function(){Api_call()}, 100000);
+	
+					});
+              
+}
+
+$(document).ready(function(){
+    $('#buy_button').click(function(){
+       transaction(($('#buy_quantity').val()),'x');
+    });
+  });
+
+ $(document).ready(function(){
+    $('#sell_button').click(function(){
+       transaction(($('#sell_quantity').val()),"");
+    });
+  });
+ function transaction(quantity,isbuy)
+ {
+ dat={qty:quantity, buy:isbuy};
+ var path = "buySell.py";
+             $.ajax({
+             url: path,
+             data: dat,
+			 success:function(dataa){if(dataa!="") alert("transaction successful");}
+			 
+});
+      
+ 
+ }
+function min_buy(json)
+   {
+   //alert("in min_buy, json received is"+ json);
+   //alert(json.key1.coinBase);
+   //alert("min is"+Math.min(json.key1.CoinBase,json.key1.BitStamp,json.key1.Kraken,json.key1.itBit));
+    document.getElementById("buy").innerHTML=Math.min(json.key1.CoinBase,json.key1.BitStamp,json.key1.Kraken,json.key1.itBit);
+    document.getElementById("sell").innerHTML=Math.max(json.key2.CoinBase,json.key2.BitStamp,json.key2.Kraken,json.key2.itBit);
+    document.getElementById("cb_b").innerHTML = json.key1.CoinBase;
+	document.getElementById("cb_s").innerHTML = json.key2.CoinBase;
+	document.getElementById("bs_b").innerHTML = json.key1.BitStamp;
+	document.getElementById("bs_s").innerHTML = json.key2.BitStamp;
+	document.getElementById("kr_b").innerHTML = json.key1.Kraken;
+	document.getElementById("kr_s").innerHTML = json.key2.Kraken;
+	document.getElementById("ib_b").innerHTML = json.key1.itBit;
+	document.getElementById("ib_s").innerHTML = json.key2.itBit;
+	
+    }
+</script>
+ </body>
+</html>
